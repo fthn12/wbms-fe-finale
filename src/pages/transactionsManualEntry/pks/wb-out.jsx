@@ -6,8 +6,9 @@ import * as yup from "yup";
 import { toast } from "react-toastify";
 import moment from "moment";
 import numeral from "numeral";
-import TBS from "./tbs/in";
-import OTHERS from "./others/in";
+import TBS from "./tbs/out";
+import Kernel from "./kernel/out";
+import OTHERS from "./others/out";
 import Header from "../../../components/layout/signed/HeaderTransaction";
 import BonTripPrint from "../../../components/BonTripPrint";
 
@@ -76,11 +77,12 @@ const PksManualEntryWBOut = () => {
 
       if (productName && productName.includes("tbs")) {
         setSelectedOption("Tbs");
+      } else if (productName && productName.includes("kernel")) {
+        setSelectedOption("Kernel");
       } else {
         setSelectedOption("Others");
       }
 
-      // Set selectedProduct
       const product = dtProduct?.data?.product?.records?.find((item) => item.id === openedTransaction.productId);
       setSelectedProduct(product);
     } catch (error) {
@@ -90,10 +92,6 @@ const PksManualEntryWBOut = () => {
       // console.clear();
     };
   }, [openedTransaction, dtProduct]);
-  console.log(
-    "Converted values.transporterCompanyId:",
-    values.transporterCompanyId ? values.transporterCompanyId.toString() : "N/A",
-  );
 
   // useEffect(() => {
   //   if (dataValues.originWeighInKg < WBMS.WB_MIN_WEIGHT || dataValues.originWeighOutKg < WBMS.WB_MIN_WEIGHT) {
@@ -143,11 +141,7 @@ const PksManualEntryWBOut = () => {
               id="select-label-company"
               options={dtCompany?.records || []}
               getOptionLabel={(option) => `[${option.code}] ${option.name}`}
-              value={
-                dtCompany?.records?.find((item) =>
-                  item.id === values.transporterCompanyId ? values.transporterCompanyId.toString() : "N/A",
-                ) || {}
-              }
+              value={dtCompany?.records?.find((item) => item.id === values?.transporterCompanyId) || null}
               onChange={(event, newValue) => {
                 setValues((prevValues) => ({
                   ...prevValues,
@@ -202,6 +196,17 @@ const PksManualEntryWBOut = () => {
 
           {selectedOption === "Tbs" && (
             <TBS
+              ProductId={values?.productId}
+              ProductName={values?.productName}
+              TransporterId={values?.transporterCompanyId}
+              TransporterCompanyName={values?.transporterCompanyName}
+              TransporterCompanyCode={values?.transporterCompanyCode}
+              PlateNo={values?.transportVehiclePlateNo}
+            />
+          )}
+
+          {selectedOption === "Kernel" && (
+            <Kernel
               ProductId={values?.productId}
               ProductName={values?.productName}
               TransporterId={values?.transporterCompanyId}

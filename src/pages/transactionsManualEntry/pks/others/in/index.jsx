@@ -266,11 +266,11 @@ const PksManualEntryOthersIn = (props) => {
           InputProps={{
             endAdornment: <InputAdornment position="end">kg</InputAdornment>,
           }}
-          onChange={handleChange}
+         
           label="BERAT MASUK -IN"
           name="originWeighInKg"
-          value={values?.originWeighInKg}
-          // inputProps={{ readOnly: true }}
+          value={values?.originWeighInKg > 0 ? values.originWeighInKg.toFixed(2) : "0.00"}
+          inputProps={{ readOnly: true }}
         />
         <TextField
           type="number"
@@ -309,7 +309,7 @@ const PksManualEntryOthersIn = (props) => {
           disabled={
             !(
               (canSubmit && !isSubmitted)
-              //  && wb?.isStable
+               && wb?.isStable
             )
           }
         >

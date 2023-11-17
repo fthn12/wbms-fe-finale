@@ -80,11 +80,16 @@ const TransactionGrid = (props) => {
       setIsLoading(true);
 
       const response = await transactionAPI.getById(id);
+      const productName = response.data.transaction.productName.toLowerCase();
+      const progressStatus = response.data.transaction.progressStatus;
+      const typeSite = response.data.transaction.typeSite;
 
       setOpenedTransaction(response.data.transaction);
       setIsLoading(false);
 
-      navigate("/wb/pks/manualentry-Out");
+      if (typeSite === 1 && progressStatus === 1 && !productName.includes("cpo") && !productName.includes("pko")) {
+        navigate("/wb/pks/manualentry-Out");
+      }
     } catch (error) {
       setIsLoading(false);
       return toast.error(`${error?.message}..!!`);

@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { toast } from "react-toastify";
 import { useForm } from "../../../../../utils/useForm";
 import moment from "moment";
-import Swal from "sweetalert2";
+import Header from "../../../../../components/layout/signed/HeaderTransaction";
 import BonTripPrint from "../../../../../components/BonTripPrint";
 
 import { TransactionAPI } from "../../../../../apis";
@@ -29,28 +29,19 @@ const validationSchema = yup.object().shape({
   // role: yup.number().required("Wajib diisi."),
 });
 
-const PksManualEntryTbsIn = (props) => {
+const PksManualEntryKernelOut = (props) => {
   const { ProductId, ProductName, TransporterId, TransporterCompanyName, TransporterCompanyCode, PlateNo } = props;
   const navigate = useNavigate();
   const { user } = useAuth();
   const transactionAPI = TransactionAPI();
   const { wb } = useWeighbridge();
   const { WBMS, SCC_MODEL } = useConfig();
-  const { openedTransaction, setOpenedTransaction, useFindManyTransactionQuery, clearOpenedTransaction } =
-    useTransaction();
+  const { openedTransaction, wbTransaction, clearOpenedTransaction } = useTransaction();
   const { useGetTransportVehiclesQuery } = useTransportVehicle();
   const { setSidebar } = useApp();
   const [originWeighNetto, setOriginWeighNetto] = useState(0);
 
-  const transactionFilter = {
-    where: {
-      typeSite: WBMS.SITE_TYPE,
-      OR: [{ progressStatus: { in: [1] } }],
-    },
-  };
-
-  const { data: results } = useFindManyTransactionQuery(transactionFilter);
-  console.log(results?.records,"results")
+  const { data: dtTransportVehicles } = useGetTransportVehiclesQuery();
 
   const [canSubmit, setCanSubmit] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -74,8 +65,7 @@ const PksManualEntryTbsIn = (props) => {
     navigate("/wb/transactions");
   };
 
-
-  const handleSubmit = async (id) => {
+  const handleSubmit = async () => {
     let tempTrans = { ...values };
 
     try {
@@ -92,36 +82,6 @@ const PksManualEntryTbsIn = (props) => {
         .subtract(WBMS.SITE_CUT_OFF_HOUR, "hours")
         .subtract(WBMS.SITE_CUT_OFF_MINUTE, "minutes")
         .format();
-
-      const duplicatePlateNo = results?.records?.find(
-        (item) => item.transportVehiclePlateNo === PlateNo && [1].includes(item.progressStatus),
-      );
-
-      if (duplicatePlateNo) {
-        const productName = duplicatePlateNo.productName.toLowerCase();
-
-        if (!productName.includes("cpo") && !productName.includes("pko")) {
-          const swalResult = await Swal.fire({
-            title: "Truk Masih di Dalam",
-            text: "Apakah Anda ingin keluar?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: "#1976d2",
-            confirmButtonText: "Ya",
-            cancelButtonText: "Tidak",
-          });
-
-          const response = await transactionAPI.getById(id);
-
-          setOpenedTransaction(response.data.transaction);
-          setIsLoading(false);
-
-          if (swalResult.isConfirmed) {
-            navigate("/wb/pks/manualentry-Out");
-          }
-        }
-        return;
-      }
 
       const data = { wbTransaction: { ...tempTrans } };
 
@@ -145,7 +105,7 @@ const PksManualEntryTbsIn = (props) => {
     if (!isSubmitted) {
       setValues((prev) => ({
         ...prev,
-        originWeighInKg: wb.weight,
+        originWeighOutKg: wb.weight,
       }));
     }
   }, [wb.weight]);
@@ -259,7 +219,7 @@ const PksManualEntryTbsIn = (props) => {
           onChange={handleChange}
           sx={{ mt: 2 }}
         />
-        <TextField
+        {/* <TextField
           name="qtyTbs"
           label="Janjang/Sak"
           type="text"
@@ -269,7 +229,7 @@ const PksManualEntryTbsIn = (props) => {
           onChange={handleChange}
           value={values?.qtyTbs}
           sx={{ mt: 2 }}
-        />
+        /> */}
         <TextField
           name="tahun"
           label="Tahun"
@@ -292,6 +252,7 @@ const PksManualEntryTbsIn = (props) => {
           value={values?.sptbs}
           sx={{ mt: 2 }}
         />
+        Kernelll
       </Grid>
 
       <Grid item xs={6} sm={3}>
@@ -304,7 +265,6 @@ const PksManualEntryTbsIn = (props) => {
           InputProps={{
             endAdornment: <InputAdornment position="end">kg</InputAdornment>,
           }}
-          onChange={handleChange}
           label="BERAT MASUK -IN"
           name="originWeighInKg"
           value={values?.originWeighInKg > 0 ? values.originWeighInKg.toFixed(2) : "0.00"}
@@ -344,9 +304,7 @@ const PksManualEntryTbsIn = (props) => {
           fullWidth
           sx={{ mt: 2, mb: 1 }}
           onClick={handleSubmit}
-          // disabled={!(canSubmit && !isSubmitted
-          //   // && wb?.isStable
-          //   )}
+          disabled={!(canSubmit && !isSubmitted && wb?.isStable)}
         >
           Simpan
         </Button>
@@ -368,4 +326,4 @@ const PksManualEntryTbsIn = (props) => {
   );
 };
 
-export default PksManualEntryTbsIn;
+export default PksManualEntryKernelOut;

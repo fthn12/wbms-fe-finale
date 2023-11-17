@@ -1,8 +1,10 @@
-import { useMemo, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Box, Button, CircularProgress, IconButton, Paper } from "@mui/material";
-import { AgGridReact } from "ag-grid-react"; // the AG Grid React Component
-import "ag-grid-enterprise";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Box, Button, TextField, FormControl, Autocomplete } from "@mui/material";
+
+// import dayjs from "dayjs";
+// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+// import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { ClientSideRowModelModule } from "@ag-grid-community/client-side-row-model";
 import { RangeSelectionModule } from "@ag-grid-enterprise/range-selection";
 import { RowGroupingModule } from "@ag-grid-enterprise/row-grouping";
@@ -11,30 +13,45 @@ import "ag-grid-community/styles/ag-grid.css"; // Core grid CSS, always needed
 import "ag-grid-community/styles/ag-theme-alpine.min.css"; // Optional theme CSS
 import "ag-grid-community/styles/ag-theme-balham.min.css"; // Optional theme CSS
 import { ModuleRegistry } from "@ag-grid-community/core";
-import { toast } from "react-toastify";
-import * as moment from "moment";
+import moment from "moment";
 
-import PlagiarismOutlinedIcon from "@mui/icons-material/PlagiarismOutlined";
+import exportToPDF from "./export2PDF/exportToPDF";
 
 import Header from "../../../components/layout/signed/Header";
+import TransactionTable from "./TransactionTable";
+import Export2Excel from "./Export2Excel";
+// import ViewTransaction from "../../../components/viewTransaction";
 
-import { TransactionAPI } from "../../../apis";
-import { useConfig, useTransaction, useApp } from "../../../hooks";
-import { useRef } from "react";
+import { useConfig, useTransaction, useApp, useProduct, useTransportVehicle, useCompany } from "../../../hooks";
 
 ModuleRegistry.registerModules([ClientSideRowModelModule, RangeSelectionModule, RowGroupingModule, RichSelectModule]);
 
 const ReportTransactionDaily = () => {
-  const navigate = useNavigate();
-  const { setSidebar } = useApp();
-  const { WBMS, PROGRESS_STATUS } = useConfig();
-  const { setOpenedTransaction, useFindManyTransactionQuery } = useTransaction();
-
-  const transactionAPI = TransactionAPI();
-
-  const [isLoading, setIsLoading] = useState(false);
-
   const gridRef = useRef();
+  const [gridApi, setGridApi] = useState(null);
+  const [columnApi, setColumnApi] = useState(null);
+
+  const { setSidebar } = useApp();
+  const {
+    WBMS,
+    // PKS_PROGRESS_STATUS,
+    // T30_PROGRESS_STATUS,
+    // BULKING_PROGRESS_STATUS,
+  } = useConfig();
+  const { useFindManyTransactionQuery } = useTransaction();
+  // const { useGetProductQuery } = useProduct();
+  // const { useGetTransportVehiclesQuery } = useTransportVehicle();
+  // const { useGetCompanyQuery } = useCompany();
+
+  //filter date
+  // const today = dayjs();
+  // const startOfToday = today.startOf("day").hour(7);
+  // const startDateTime = today.isAfter(startOfToday) ? startOfToday : startOfToday.subtract(1, "day");
+  // const endDateTime = startOfToday;
+  // const [selectedStartDate, setSelectedStartDate] = useState(startDateTime);
+  // const [selectedEndDate, setSelectedEndDate] = useState(endDateTime);
+  // const filterStart = moment(selectedStartDate).hour(7).startOf("hour");
+  // const filterEnd = moment(selectedEndDate).add(1, "day").hour(6).endOf("hour");
 
   const data = {
     where: {
@@ -43,215 +60,259 @@ const ReportTransactionDaily = () => {
     },
     orderBy: { bonTripNo: "desc" },
   };
-
+ 
   const { data: dtTransaction, refetch: refetchDtTransaction } = useFindManyTransactionQuery(data);
+  // const { data: dtProduct } = useGetProductQuery();
+  // const { data: dtTransportVehicle } = useGetTransportVehiclesQuery();
+  // const { data: dtCompany } = useGetCompanyQuery();
 
-  const handleViewClick = async (id) => {
-    try {
-      setIsLoading(true);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
 
-      const response = await transactionAPI.getById(id);
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [selectedVendor, setSelectedVendor] = useState("");
+  const [selectedPlateNo, setSelectedPlateNo] = useState("");
 
-      setOpenedTransaction(response.data.transaction);
-      setIsLoading(false);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  // const statusFilter = (inputValue) => {
+  //   if (!inputValue || inputValue.trim() === "") {
+  //     if (WBMS.SITE_TYPE === "1") {
+  //       return Object.keys(PKS_PROGRESS_STATUS).map(
+  //         (key) => PKS_PROGRESS_STATUS[key]
+  //       );
+  //     } else if (WBMS.SITE_TYPE === "2") {
+  //       return Object.keys(T30_PROGRESS_STATUS).map(
+  //         (key) => T30_PROGRESS_STATUS[key]
+  //       );
+  //     } else if (WBMS.SITE_TYPE === "3") {
+  //       return Object.keys(BULKING_PROGRESS_STATUS).map(
+  //         (key) => BULKING_PROGRESS_STATUS[key]
+  //       );
+  //     }
+  //   }
 
-      return navigate(response.data.urlPath);
-    } catch (error) {
-      setIsLoading(false);
-      toast.error(`${error?.message}..!!`);
-    }
+  //   // Gunakan metode filter() untuk mencocokkan nama status dengan nilai input
+  //   let filteredStatus = [];
+  //   if (WBMS.SITE_TYPE === "1") {
+  //     filteredStatus = Object.keys(PKS_PROGRESS_STATUS).filter((key) =>
+  //       PKS_PROGRESS_STATUS[key]
+  //         .toLowerCase()
+  //         .includes(inputValue.toLowerCase())
+  //     );
+  //   } else if (WBMS.SITE_TYPE === "2") {
+  //     filteredStatus = Object.keys(T30_PROGRESS_STATUS).filter((key) =>
+  //       T30_PROGRESS_STATUS[key]
+  //         .toLowerCase()
+  //         .includes(inputValue.toLowerCase())
+  //     );
+  //   } else if (WBMS.SITE_TYPE === "3") {
+  //     filteredStatus = Object.keys(BULKING_PROGRESS_STATUS).filter((key) =>
+  //       BULKING_PROGRESS_STATUS[key]
+  //         .toLowerCase()
+  //         .includes(inputValue.toLowerCase())
+  //     );
+  //   }
+
+  //   return filteredStatus;
+  // };
+
+  // const statusFilterMemoized = useCallback(statusFilter, [
+  //   PKS_PROGRESS_STATUS,
+  //   BULKING_PROGRESS_STATUS,
+  //   T30_PROGRESS_STATUS,
+  //   WBMS.SITE_TYPE,
+  // ]);
+
+  const actionsRenderer = (params) => {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center">
+        {params.data && (
+          <Button
+            variant="contained"
+            size="small"
+            sx={{ m: "1px" }}
+            onClick={() => {
+              setSelectedTransaction(params.data);
+              setIsViewOpen(true);
+            }}
+          >
+            View
+          </Button>
+        )}
+      </Box>
+    );
   };
 
   useEffect(() => {
     setSidebar({ selected: "Transaksi Harian" });
   }, []);
 
-  const statusFormatter = (params) => {
-    return PROGRESS_STATUS[params.value];
-    // if (WBMS.SITE_TYPE === 1) return PKS_PROGRESS_STATUS[params.value];
-    // else if (WBMS.SITE_TYPE === 2) return T30_PROGRESS_STATUS[params.value];
-    // else if (WBMS.SITE_TYPE === 3) return BULKING_PROGRESS_STATUS[params.value];
-  };
-
-  const dateFormatter = (params) => {
-    if (params.data) return moment(params.value).format("DD MMM YYYY").toUpperCase();
-  };
-
-  const timeFormatter = (params) => {
-    if (params.data) return moment(params.value).format("HH:mm:ss");
-  };
-
-  const originNettoFormatter = (params) => {
-    if (params?.data) {
-      let netto = 0;
-
-      netto = Math.abs(params.data.originWeighInKg - params.data.originWeighOutKg);
-
-      return netto.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-  };
-
-  const returnNettoFormatter = (params) => {
-    if (params?.data) {
-      let netto = 0;
-
-      netto = Math.abs(params.data.returnWeighInKg - params.data.returnWeighOutKg);
-
-      return netto.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-  };
-
-  const actionsRenderer = (params) => {
-    return (
-      <>
-        {params.data && (
-          <Box display="flex" justifyContent="center" alignItems="center">
-            <IconButton size="small" onClick={() => handleViewClick(params.data.id)}>
-              <PlagiarismOutlinedIcon sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Box>
-        )}
-      </>
-    );
-  };
-
-  const [columnDefs] = useState([
-    {
-      headerName: "ACTIONS",
-      field: "id",
-      width: 100,
-      cellRenderer: actionsRenderer,
-      sortable: false,
-      resizable: false,
-      filter: false,
-      pinned: "left",
-      lockPinned: true,
-    },
-    { headerName: "NO BONTRIP", field: "bonTripNo", hide: true },
-    { headerName: "NOPOL", field: "transportVehiclePlateNo", maxWidth: 100 },
-    {
-      headerName: "Status",
-      field: "progressStatus",
-      valueFormatter: statusFormatter,
-      enableRowGroup: true,
-      rowGroup: true,
-      hide: true,
-    },
-    { headerName: "NO DO", field: "deliveryOrderNo", maxWidth: 100 },
-    { headerName: "PRODUK", field: "productName", maxWidth: 110, cellStyle: { textAlign: "center" } },
-    { headerName: "WB-IN", field: "originWeighInKg", maxWidth: 110, cellStyle: { textAlign: "right" } },
-    { headerName: "WB-OUT", field: "originWeighOutKg", maxWidth: 110, cellStyle: { textAlign: "right" } },
-    {
-      headerName: "NETTO",
-      field: "id",
-      maxWidth: 110,
-      cellStyle: { textAlign: "right" },
-      valueFormatter: originNettoFormatter,
-    },
-    { headerName: "RETUR WB-IN", field: "returnWeighInKg", maxWidth: 150, cellStyle: { textAlign: "right" } },
-    { headerName: "RETUR WB-OUT", field: "returnWeighOutKg", maxWidth: 150, cellStyle: { textAlign: "right" } },
-    {
-      headerName: "NETTO RETUR",
-      field: "id",
-      maxWidth: 110,
-      cellStyle: { textAlign: "right" },
-      valueFormatter: returnNettoFormatter,
-    },
-    {
-      headerName: "TGL PENGAKUAN",
-      field: "dtTransaction",
-      maxWidth: 120,
-      cellStyle: { textAlign: "center" },
-      valueFormatter: dateFormatter,
-    },
-    {
-      headerName: "WAKTU",
-      field: "dtModified",
-      maxWidth: 110,
-      cellStyle: { textAlign: "center" },
-      valueFormatter: timeFormatter,
-    },
-    {
-      headerName: "TANGGAL",
-      field: "dtModified",
-      maxWidth: 120,
-      cellStyle: { textAlign: "center" },
-      valueFormatter: dateFormatter,
-    },
-  ]);
-
-  const defaultColDef = {
-    sortable: true,
-    resizable: true,
-    floatingFilter: false,
-    filter: true,
-    enableRowGroup: false,
-    rowGroup: false,
-  };
-
-  // never changes, so we can use useMemo
-  const autoGroupColumnDef = useMemo(
-    () => ({
-      cellRendererParams: {
-        suppressCount: false,
-        checkbox: false,
-      },
-      field: "bonTripNo",
-      headerName: "STATUS",
-      minWidth: "200",
-      flex: 1,
-    }),
-    [],
-  );
-
   return (
     <Box>
-      <Header title="LAPORAN TRANSAKSI" subtitle="LAPORAN TRANSAKSI" />
+      <Header title="LAPORAN TRANSAKSI" subtitle="Laporan Transaksi Harian" />
 
-      <Box display="flex" sx={{ mt: 3 }}>
-        <Box flex={1}></Box>
-        <Button variant="contained" onClick={() => gridRef.current.api.exportDataAsExcel()}>
-          Export Excel
-        </Button>
-        <Button variant="contained" sx={{ ml: 0.5 }} onClick={() => refetchDtTransaction()}>
-          Reload
-        </Button>
+      <Box display="flex" sx={{ mt: 1 }}>
+        {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Dari Tanggal"
+            // maxDate={today}
+            className="custom-datetimepicker"
+            value={selectedStartDate}
+            onChange={(date) => {
+              const formattedDate = dayjs(date).startOf("day").hour(7).toDate();
+              setSelectedStartDate(formattedDate);
+            }}
+          />
+          <DatePicker
+            label="Sampai Tanggal"
+            className="custom-datetimepicker"
+            // maxDate={today}
+            value={selectedEndDate}
+            onChange={(date) => {
+              const formattedDate = dayjs(date).startOf("day").hour(7).toDate();
+              setSelectedEndDate(formattedDate);
+            }}
+          />
+        </LocalizationProvider>
+
+        <FormControl sx={{ mt: "auto", minWidth: 190 }} size="small">
+          <Autocomplete
+            value={selectedProduct}
+            onChange={(event, newValue) => {
+              setSelectedProduct(newValue || "");
+            }}
+            options={
+              dtProduct?.data?.product?.records?.map((item) => item.name) || []
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Pilih Product"
+                variant="outlined"
+                size="small"
+              />
+            )}
+            sx={{
+              color: selectedProduct === "" ? "gray" : "black",
+              fontSize: "15px",
+              mt: "auto",
+              mr: "10px",
+              minWidth: 150,
+            }}
+          />
+        </FormControl>
+
+        <FormControl sx={{ mt: "auto", minWidth: 190 }} size="small">
+          <Autocomplete
+            value={selectedPlateNo}
+            onChange={(event, newValue) => {
+              setSelectedPlateNo(newValue || "");
+            }}
+            options={
+              dtTransportVehicle?.data?.transportVehicle?.records?.map(
+                (item) => item.plateNo
+              ) || []
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Pilih No Pol"
+                variant="outlined"
+                size="small"
+              />
+            )}
+            sx={{
+              color: selectedPlateNo === "" ? "gray" : "black",
+              fontSize: "15px",
+              mt: "auto",
+              mr: "10px",
+              minWidth: 150,
+            }}
+          />
+        </FormControl>
+        <FormControl sx={{ mt: "auto", minWidth: 190 }} size="small">
+          <Autocomplete
+            value={selectedVendor}
+            onChange={(event, newValue) => {
+              setSelectedVendor(newValue || "");
+            }}
+            options={
+              dtCompany?.data?.company?.records?.map((item) => item.name) || []
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Pilih Vendor"
+                variant="outlined"
+                size="small"
+              />
+            )}
+            sx={{
+              color: selectedVendor === "" ? "gray" : "black",
+              fontSize: "15px",
+              mt: "auto",
+              mr: "10px",
+              minWidth: 150,
+            }}
+          />
+        </FormControl> */}
+
+        {/* <FormControl sx={{ mt: "auto", minWidth: 190 }} size="small">
+          <Autocomplete
+            value={selectedStatus}
+            onChange={(event, newValue) => {
+              setSelectedStatus(newValue); // Memperbarui selectedStatus saat status dipilih
+            }}
+            options={statusFilter("")}
+            getOptionLabel={(status) => status}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Pilih Status"
+                variant="outlined"
+                size="small"
+              />
+            )}
+            sx={{
+              color: selectedStatus === "" ? "gray" : "black",
+              fontSize: "15px",
+              mt: "auto",
+              mr: "10px",
+              minWidth: 150,
+            }}
+          />
+        </FormControl> */}
+
+        <Box ml="auto" mt="auto">
+          <Export2Excel columnApi={columnApi} gridRef={gridRef} />
+          <Button variant="contained" onClick={() => exportToPDF(gridApi, columnApi)}>
+            Export PDF
+          </Button>
+
+          <Button variant="contained" sx={{ ml: 0.5 }} onClick={() => refetchDtTransaction()}>
+            Reload
+          </Button>
+        </Box>
       </Box>
 
-      <Paper sx={{ mt: 1, p: 2, minHeight: "77vh" }}>
-        <Box
-          className="ag-theme-balham"
-          sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75.5vh" }}
-        >
-          <AgGridReact
-            ref={gridRef}
-            rowData={dtTransaction?.records} // Row Data for Rows
-            columnDefs={columnDefs} // Column Defs for Columns
-            defaultColDef={defaultColDef} // Default Column Properties
-            animateRows={true} // Optional - set to 'true' to have rows animate when sorted
-            rowSelection="multiple" // Options - allows click selection of rows
-            rowGroupPanelShow="always"
-            enableRangeSelection="true"
-            groupSelectsChildren="true"
-            suppressRowClickSelection="true"
-            autoGroupColumnDef={autoGroupColumnDef}
-            pagination="true"
-            paginationAutoPageSize="true"
-            groupDefaultExpanded="1"
-          />
-        </Box>
-      </Paper>
-      {isLoading && (
-        <CircularProgress
-          size={50}
-          sx={{
-            color: "goldenrod",
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-          }}
-        />
-      )}
+      <TransactionTable
+        dtTransaction={dtTransaction}
+        selectedProduct={selectedProduct}
+        selectedVendor={selectedVendor}
+        selectedPlateNo={selectedPlateNo}
+        // selectedStatus={selectedStatus}
+        // statusFilter={statusFilter}
+        // statusFilterMemoized={statusFilterMemoized}
+        gridRef={gridRef}
+        setGridApi={setGridApi}
+        setColumnApi={setColumnApi}
+        actionsRenderer={actionsRenderer}
+      />
+      {/* <ViewTransaction
+        isViewOpen={isViewOpen}
+        onClose={() => setIsViewOpen(false)}
+        dtTransaction={selectedTransaction}
+      /> */}
     </Box>
   );
 };

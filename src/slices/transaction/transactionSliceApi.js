@@ -13,7 +13,14 @@ export const transactionApiSlice = apiSlice.injectEndpoints({
       transformResponse: (response, meta, arg) => response?.data?.transaction,
       providesTags: ["transaction"],
     }),
+    getTransaction: builder.query({
+      query: (data) => ({
+        url: `${API_URL}`,
+        method: "GET",
+      }),
+      providesTags: ["transaction"],
+    }),
   }),
 });
 
-export const { useFindManyTransactionQuery } = transactionApiSlice;
+export const { useFindManyTransactionQuery, useGetAllTransactionQuery } = transactionApiSlice;

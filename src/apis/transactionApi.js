@@ -124,14 +124,8 @@ export const TransactionAPI = () => {
     return response.data;
   };
 
-  const create = async (data) => {
-    const response = await axios.post(`${endpoint}`, data);
-
-    return response.data;
-  };
 
   return {
-    create,
     getById,
     findMany,
     findFirst,
