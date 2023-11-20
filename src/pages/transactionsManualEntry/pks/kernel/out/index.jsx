@@ -85,7 +85,7 @@ const PksManualEntryKernelOut = (props) => {
 
       const data = { wbTransaction: { ...tempTrans } };
 
-      const response = await transactionAPI.create(data);
+      const response = await transactionAPI.update(data);
 
       if (!response.status) throw new Error(response?.message);
 
@@ -94,7 +94,7 @@ const PksManualEntryKernelOut = (props) => {
       setValues({ ...response.data.transaction });
       setIsSubmitted(true);
 
-      toast.success(`Transaksi WB-IN telah tersimpan.`);
+      toast.success(`Transaksi WB-OUT telah tersimpan.`);
     } catch (error) {
       return toast.error(`${error.message}.`);
     }
@@ -241,20 +241,119 @@ const PksManualEntryKernelOut = (props) => {
           value={values?.tahun}
           sx={{ mt: 2 }}
         />
-        <TextField
-          name="sptbs"
-          label="SPTBS"
-          type="text"
-          variant="outlined"
-          size="small"
-          fullWidth
-          onChange={handleChange}
-          value={values?.sptbs}
-          sx={{ mt: 2 }}
-        />
-        Kernelll
       </Grid>
+      <Grid item xs={6} sm={3}>
+        <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={1}>
+          <Box gridColumn="span 7">
+            <TextField
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+              onChange={handleChange}
+              label="Moisture"
+              name="originMoistPercentage"
+              value={values.originMoistPercentage}
+            />
+          </Box>
+          <Box gridColumn="span 5">
+            <TextField
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ backgroundColor: "whitesmoke" }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+              }}
+              // value={potBMKG}
+              inputProps={{ readOnly: true }}
+            />
+          </Box>
+          <Box gridColumn="span 7">
+            <TextField
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ mt: 1 }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+              onChange={handleChange}
+              label="Dirt"
+              name="originDirtPercentage"
+              value={values.originDirtPercentage}
+            />
+          </Box>
+          <Box gridColumn="span 5">
+            <TextField
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ mt: 1, backgroundColor: "whitesmoke" }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+              }}
+              // name="originWeighInKg"
+              // value={values?.originWeighInKg > 0 ? values.originWeighInKg.toFixed(2) : "0.00"}
+              inputProps={{ readOnly: true }}
+            />
+          </Box>
+          <Box gridColumn="span 7">
+            <TextField
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ mt: 1 }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+              onChange={handleChange}
+              label="Stone"
+              name="stone"
+              value={values.stone}
+            />
+          </Box>
+          <Box gridColumn="span 5">
+            <TextField
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ mt: 1, backgroundColor: "whitesmoke" }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+              }}
+              // name="originWeighInKg"
+              // value={values?.originWeighInKg > 0 ? values.originWeighInKg.toFixed(2) : "0.00"}
+              inputProps={{ readOnly: true }}
+            />
+          </Box>
 
+          <Box gridColumn="span 12">
+            <hr style={{borderColor: "whitesmoke" }} />
+            <TextField
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              sx={{ mt: 4 }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">kg</InputAdornment>,
+              }}
+              label="TOTAL Potongan"
+              inputProps={{ readOnly: true }}
+              // value={values?.potonganWajib}
+            />
+          </Box>
+        </Box>
+      </Grid>
       <Grid item xs={6} sm={3}>
         <TextField
           type="number"

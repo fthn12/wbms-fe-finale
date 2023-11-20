@@ -126,7 +126,7 @@ const PksManualEntryWBOut = () => {
         </Button>
       </Box>
       <Paper sx={{ mt: 1, p: 2, minHeight: "71.5vh" }}>
-        <Grid container spacing={1}>
+        <Grid container spacing={2}>
           <Grid item xs={6} sm={3}>
             <TextField
               variant="outlined"
@@ -176,12 +176,19 @@ const PksManualEntryWBOut = () => {
                 const { id, name } = newValue || { id: "", name: "" };
                 setValues((prevValues) => ({ ...prevValues, productId: id, productName: name }));
                 setSelectedProduct({ id, name });
-                setSelectedOption(newValue?.name.toLowerCase().includes("tbs") ? "Tbs" : "Others");
+                setSelectedOption(
+                  newValue?.name.toLowerCase().includes("tbs")
+                    ? "Tbs"
+                    : newValue?.name.toLowerCase().includes("kernel")
+                    ? "Kernel"
+                    : "Others",
+                );
               }}
               renderInput={(params) => (
                 <TextField {...params} sx={{ mt: 2 }} label="Product" variant="outlined" size="small" />
               )}
             />
+
             {/* <TextField
               variant="outlined"
               size="small"
@@ -228,6 +235,7 @@ const PksManualEntryWBOut = () => {
           )}
         </Grid>
       </Paper>
+
       {isLoading && (
         <CircularProgress
           size={50}

@@ -146,48 +146,25 @@ const PksManualEntryWBIn = () => {
                 />
               )}
             />
-
-            {/* <Autocomplete
-              id="select-label"
-              options={dtProduct?.data?.product?.records || []}
-              getOptionLabel={(option) => option.name}
-              value={dtProduct?.data?.product?.records?.find((item) => item.id === values.productId) || null}
-              onChange={(event, newValue) => {
-                setValues((prevValues) => ({
-                  ...prevValues,
-                  productId: newValue ? newValue.id : "",
-                  productName: newValue ? newValue.name : "",
-                }));
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  sx={{
-                    mt: 2,
-                  }}
-                  label="Product"
-                  variant="outlined"
-                  size="small"
-                />
-              )}
-            /> */}
-            <Autocomplete
-              id="select-label"
-              options={dtProduct?.data?.product?.records?.filter(
-                (option) => !["cpo", "pko"].includes(option.name.toLowerCase()),
-              )}
-              getOptionLabel={(option) => option.name}
-              value={selectedProduct}
-              onChange={(event, newValue) => {
-                const { id, name } = newValue || { id: "", name: "" };
-                setValues((prevValues) => ({ ...prevValues, productId: id, productName: name }));
-                setSelectedProduct({ id, name });
-                setSelectedOption(newValue?.name.toLowerCase().includes("tbs") ? "Tbs" : "Others");
-              }}
-              renderInput={(params) => (
-                <TextField {...params} sx={{ mt: 2 }} label="Product" variant="outlined" size="small" />
-              )}
-            />
+            {values.transporterCompanyId && (
+              <Autocomplete
+                id="select-label"
+                options={dtProduct?.data?.product?.records?.filter(
+                  (option) => !["cpo", "pko"].includes(option.name.toLowerCase()),
+                )}
+                getOptionLabel={(option) => option.name}
+                value={selectedProduct}
+                onChange={(event, newValue) => {
+                  const { id, name } = newValue || { id: "", name: "" };
+                  setValues((prevValues) => ({ ...prevValues, productId: id, productName: name }));
+                  setSelectedProduct({ id, name });
+                  setSelectedOption(newValue?.name.toLowerCase().includes("tbs") ? "Tbs" : "Others");
+                }}
+                renderInput={(params) => (
+                  <TextField {...params} sx={{ mt: 2 }} label="Product" variant="outlined" size="small" />
+                )}
+              />
+            )}
           </Grid>
           {/* TBS */}
 

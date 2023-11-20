@@ -80,7 +80,7 @@ const ReportTransactionDaily = () => {
   //       return Object.keys(PKS_PROGRESS_STATUS).map(
   //         (key) => PKS_PROGRESS_STATUS[key]
   //       );
-  //     } else if (WBMS.SITE_TYPE === "2") {
+  //     } else if (WBMS.SITE_TYPE === "2") {Sebagat
   //       return Object.keys(T30_PROGRESS_STATUS).map(
   //         (key) => T30_PROGRESS_STATUS[key]
   //       );

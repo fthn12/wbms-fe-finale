@@ -18,7 +18,6 @@ import * as yup from "yup";
 import { grey } from "@mui/material/colors";
 import { useProduct } from "../../../hooks";
 
-
 const EditProduct = ({ isEditOpen, onClose, dtProducts }) => {
   const { useUpdateProductMutation } = useProduct();
   const [updateProduct] = useUpdateProductMutation();
@@ -31,7 +30,7 @@ const EditProduct = ({ isEditOpen, onClose, dtProducts }) => {
         onClose("", false);
       });
     } catch (error) {
-      toast.error(`${error.message}.`); 
+      toast.error(`${error.message}.`);
       return;
     }
   };
@@ -45,17 +44,9 @@ const EditProduct = ({ isEditOpen, onClose, dtProducts }) => {
     certification: yup.string().required("required"),
   });
 
-
   return (
-    <Dialog
-      open={isEditOpen}
-      fullWidth
-      maxWidth="md"
-      onClose={() => onClose("", false)}
-    >
-      <DialogTitle
-        sx={{ color: "white", backgroundColor: "black", fontSize: "27px" }}
-      >
+    <Dialog open={isEditOpen} fullWidth maxWidth="md" onClose={() => onClose("", false)}>
+      <DialogTitle sx={{ color: "white", backgroundColor: "black", fontSize: "27px" }}>
         Edit Data Product
         <IconButton
           sx={{
@@ -72,19 +63,8 @@ const EditProduct = ({ isEditOpen, onClose, dtProducts }) => {
         </IconButton>
       </DialogTitle>
 
-      <Formik
-        onSubmit={handleFormSubmit}
-        initialValues={dtProducts}
-        validationSchema={userSchema}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-        }) => (
+      <Formik onSubmit={handleFormSubmit} initialValues={dtProducts} validationSchema={userSchema}>
+        {({ values, errors, touched, handleBlur, handleChange, handleSubmit }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent dividers>
               <Box
@@ -120,7 +100,7 @@ const EditProduct = ({ isEditOpen, onClose, dtProducts }) => {
                     helperText={touched.code && errors.code}
                   />
                 </FormControl>
-               
+
                 <FormControl sx={{ gridColumn: "span 5" }}>
                   <FormLabel
                     sx={{
@@ -191,12 +171,8 @@ const EditProduct = ({ isEditOpen, onClose, dtProducts }) => {
                     onChange={handleChange}
                     value={values?.productGroupName}
                     name="productGroupName"
-                    error={
-                      touched.productGroupName && !!errors.productGroupName
-                    }
-                    helperText={
-                      touched.productGroupName && errors.productGroupName
-                    }
+                    error={touched.productGroupName && !!errors.productGroupName}
+                    helperText={touched.productGroupName && errors.productGroupName}
                   />
 
                   <FormLabel

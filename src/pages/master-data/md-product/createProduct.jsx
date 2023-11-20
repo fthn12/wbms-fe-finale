@@ -19,8 +19,7 @@ import * as yup from "yup";
 import { grey } from "@mui/material/colors";
 import { useProduct } from "../../../hooks";
 
-
-const CreateProduct = ({ isOpen, onClose, }) => {
+const CreateProduct = ({ isOpen, onClose }) => {
   const { useCreateProductMutation } = useProduct();
   const [createProduct, { isLoading }] = useCreateProductMutation();
 
@@ -58,9 +57,7 @@ const CreateProduct = ({ isOpen, onClose, }) => {
 
   return (
     <Dialog open={isOpen} fullWidth maxWidth="md">
-      <DialogTitle
-        sx={{ color: "white", backgroundColor: "black", fontSize: "27px" }}
-      >
+      <DialogTitle sx={{ color: "white", backgroundColor: "black", fontSize: "27px" }}>
         Tambah Data Product
         <IconButton
           sx={{
@@ -77,19 +74,8 @@ const CreateProduct = ({ isOpen, onClose, }) => {
         </IconButton>
       </DialogTitle>
 
-      <Formik
-        onSubmit={handleSubmit}
-        initialValues={initialValues}
-        validationSchema={checkoutSchema}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleBlur,
-          handleChange,
-          handleSubmit,
-        }) => (
+      <Formik onSubmit={handleSubmit} initialValues={initialValues} validationSchema={checkoutSchema}>
+        {({ values, errors, touched, handleBlur, handleChange, handleSubmit }) => (
           <form onSubmit={handleSubmit}>
             <DialogContent dividers>
               <Box
@@ -125,7 +111,7 @@ const CreateProduct = ({ isOpen, onClose, }) => {
                     helperText={touched.code && errors.code}
                   />
                 </FormControl>
-              
+
                 <FormControl sx={{ gridColumn: "span 5" }}>
                   <FormLabel
                     sx={{
@@ -196,12 +182,8 @@ const CreateProduct = ({ isOpen, onClose, }) => {
                     onChange={handleChange}
                     value={values?.productGroupName}
                     name="productGroupName"
-                    error={
-                      touched.productGroupName && !!errors.productGroupName
-                    }
-                    helperText={
-                      touched.productGroupName && errors.productGroupName
-                    }
+                    error={touched.productGroupName && !!errors.productGroupName}
+                    helperText={touched.productGroupName && errors.productGroupName}
                   />
                   <FormLabel
                     sx={{
@@ -252,7 +234,6 @@ const CreateProduct = ({ isOpen, onClose, }) => {
                     name="description"
                     error={touched.description && !!errors.description}
                     helperText={touched.description && errors.description}
-                 
                   />
                 </FormControl>
               </Box>

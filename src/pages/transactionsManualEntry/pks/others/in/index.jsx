@@ -243,17 +243,7 @@ const PksManualEntryOthersIn = (props) => {
           value={values?.tahun}
           sx={{ mt: 2 }}
         />
-        <TextField
-          name="sptbs"
-          label="SPTBS"
-          type="text"
-          variant="outlined"
-          size="small"
-          fullWidth
-          onChange={handleChange}
-          value={values?.sptbs}
-          sx={{ mt: 2 }}
-        />
+      
       </Grid>
 
       <Grid item xs={6} sm={3}>

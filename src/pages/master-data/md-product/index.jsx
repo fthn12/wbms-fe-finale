@@ -13,9 +13,9 @@ import AddIcon from "@mui/icons-material/Add";
 import Tab from "@mui/material/Tab";
 import { TabList, TabPanel, TabContext } from "@mui/lab";
 import { orange, blue, red, indigo, green } from "@mui/material/colors";
-import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import DriveFileRenameOutline from "@mui/icons-material/DriveFileRenameOutline";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import PlagiarismOutlinedIcon from "@mui/icons-material/PlagiarismOutlined";
+import ModeOutlinedIcon from "@mui/icons-material/ModeOutlined";
+import DeleteForeverOutlinedIcon from "@mui/icons-material/DeleteForeverOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import SyncIcon from "@mui/icons-material/Sync";
 import InputBase from "@mui/material/InputBase";
@@ -24,7 +24,6 @@ import EditProducts from "./editProduct";
 import ViewProducts from "./viewProduct";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
-
 
 import Header from "../../../components/layout/signed/Header";
 
@@ -36,7 +35,7 @@ const MDProduct = () => {
   const { MD_SOURCE } = useConfig();
   const { useGetProductQuery, useEDispatchProductSyncMutation, useDeleteProductMutation } = useProduct();
 
-const [deleteProduct] = useDeleteProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
 
   const { data: response, error, refetch } = useGetProductQuery();
   const [eDispatchSync, results] = useEDispatchProductSyncMutation();
@@ -96,63 +95,36 @@ const [deleteProduct] = useDeleteProductMutation();
     }
   }, [response, searchQuery]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refetch();
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [refetch]);
-
   const actionsRenderer = (params) => {
     const { refType } = params.data;
 
-    const commonButtonProps = {
-      width: "25%",
-      display: "flex",
-      m: "0 3px",
-      borderRadius: "5px",
-      padding: "8px 8px",
-      justifyContent: "center",
-      color: "white",
-      textDecoration: "none",
-      cursor: "pointer",
-      fontSize: "20px",
-    };
-
     const viewButton = (
-      <Box
-        {...commonButtonProps}
-        bgcolor={indigo[700]}
+      <IconButton
+        size="small"
         onClick={() => {
           setSelectedProduct(params.data);
           setIsViewOpen(true);
         }}
       >
-        <VisibilityOutlinedIcon sx={{ fontSize: "16px" }} />
-      </Box>
+        <PlagiarismOutlinedIcon sx={{ fontSize: 18 }} />
+      </IconButton>
     );
 
     const editButton = (
-      <Box
-        {...commonButtonProps}
-        bgcolor={orange[600]}
+      <IconButton
         onClick={() => {
           setSelectedProduct(params.data);
           setIsEditOpen(true);
         }}
       >
-        <DriveFileRenameOutline sx={{ fontSize: "16px" }} />
-      </Box>
+        <ModeOutlinedIcon sx={{ fontSize: 18 }} />
+      </IconButton>
     );
 
     const deleteButton = (
-      <Box {...commonButtonProps} bgcolor={red[800]} 
-      onClick={() => deleteById(params.value, params.data.name)}
-      >
-        <DeleteOutlineOutlinedIcon sx={{ fontSize: "16px" }} />
-      </Box>
+      <IconButton onClick={() => deleteById(params.value, params.data.name)}>
+        <DeleteForeverOutlinedIcon sx={{ fontSize: 18 }} />
+      </IconButton>
     );
 
     return (
@@ -176,9 +148,9 @@ const [deleteProduct] = useDeleteProductMutation();
     },
     { field: "code", resizable: true, headerName: "Kode", maxWidth: 180, cellStyle: { textAlign: "center" } },
     { field: "name", headerName: "Nama", resizable: true, flex: 2, cellStyle: { textAlign: "center" } },
-    { field: "certification",  resizable: true, headerName: "Sertifikasi", cellStyle: { textAlign: "center" } },
+    { field: "certification", resizable: true, headerName: "Sertifikasi", cellStyle: { textAlign: "center" } },
     { field: "description", resizable: true, headerName: "Deskripsi", flex: 2, cellStyle: { textAlign: "center" } },
-    
+
     {
       field: "refType",
       headerName: "Source Data",
@@ -211,10 +183,10 @@ const [deleteProduct] = useDeleteProductMutation();
       cellStyle: { textAlign: "center" },
       valueGetter: (params) => params.node.rowIndex + 1,
     },
-    { field: "code",  resizable: true, headerName: "Kode", maxWidth: 150, cellStyle: { textAlign: "center" } },
-    { field: "name",  resizable: true, headerName: "Nama", flex: 1, cellStyle: { textAlign: "center" }  },
-    { field: "certification",  resizable: true, headerName: "Sertifikasi", cellStyle: { textAlign: "center" } },
-    { field: "description",    headerName: "Deskripsi", flex: 2, cellStyle: { textAlign: "center" }  },
+    { field: "code", resizable: true, headerName: "Kode", maxWidth: 150, cellStyle: { textAlign: "center" } },
+    { field: "name", resizable: true, headerName: "Nama", flex: 1, cellStyle: { textAlign: "center" } },
+    { field: "certification", resizable: true, headerName: "Sertifikasi", cellStyle: { textAlign: "center" } },
+    { field: "description", headerName: "Deskripsi", flex: 2, cellStyle: { textAlign: "center" } },
     {
       field: "id",
       headerName: "Actions",
@@ -254,38 +226,38 @@ const [deleteProduct] = useDeleteProductMutation();
 
   return (
     <Box m="20px">
-    <TabContext value={value}>
-      <Paper
-        elevation={1}
-        sx={{
-          mt: 2,
-          pt: 1,
-          width: "96%",
-          marginLeft: "37px",
-          borderTop: "5px solid #000",
-          borderRadius: "10px 10px 0px 0px",
-        }}
-      >
-        <TabList onChange={handleChange} aria-label="lab API tabs example">
-          <Tab label="all" value="" />
-          <Tab label="wbms" value="0" />
-          <Tab label="e-dispatch" value="1" />
-          <Tab label="e-lhp" value="2" />
-        </TabList>
-      </Paper>
-      <TabPanel value="">
+      <TabContext value={value}>
         <Paper
+          elevation={1}
           sx={{
-            p: 3,
-            mx: 1,
-            borderRadius: "10px 10px 10px 10px",
-            mb: 3,
+            mt: 2,
+            pt: 1,
+            width: "96%",
+            marginLeft: "37px",
+            borderTop: "5px solid #000",
+            borderRadius: "10px 10px 0px 0px",
           }}
         >
-          <div style={{ marginBottom: "10px" }}>
-            <Box display="flex">
-              <Typography variant="h3">Data Product</Typography>
-              {/* <Box display="flex" ml="auto">
+          <TabList onChange={handleChange} aria-label="lab API tabs example">
+            <Tab label="all" value="" />
+            <Tab label="wbms" value="0" />
+            <Tab label="e-dispatch" value="1" />
+            <Tab label="e-lhp" value="2" />
+          </TabList>
+        </Paper>
+        <TabPanel value="">
+          <Paper
+            sx={{
+              p: 3,
+              mx: 1,
+              borderRadius: "10px 10px 10px 10px",
+              mb: 3,
+            }}
+          >
+            <div style={{ marginBottom: "10px" }}>
+              <Box display="flex">
+                <Typography variant="h3">Data Product</Typography>
+                {/* <Box display="flex" ml="auto">
                 <Button
                   variant="contained"
                   sx={{
@@ -303,271 +275,263 @@ const [deleteProduct] = useDeleteProductMutation();
                   Tambah Data
                 </Button>
               </Box> */}
-            </Box>
-            <hr sx={{ width: "100%" }} />
-            <Box display="flex" pb={1}>
-              <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
-                <InputBase
-                  sx={{ ml: 2, flex: 2, fontSize: "13px" }}
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              </Box>
+              <hr sx={{ width: "100%" }} />
+              <Box display="flex" pb={1}>
+                <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
+                  <InputBase
+                    sx={{ ml: 2, flex: 2, fontSize: "13px" }}
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
 
-                <IconButton type="button" sx={{ p: 1 }}>
-                  <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
-                </IconButton>
+                  <IconButton type="button" sx={{ p: 1 }}>
+                    <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
+                  </IconButton>
+                </Box>
               </Box>
+            </div>
+            <Box
+              className="ag-theme-alpine"
+              sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
+            >
+              <AgGridReact
+                rowData={filteredData} // Row Data for Rows
+                columnDefs={columnDefsAll}
+                // defaultColDef={defaultColDef} // Default Column Properties
+                animateRows={true} // Optional - set to 'true' to have rows animate when sorted
+                // rowSelection="multiple" // Options - allows click selection of rows
+                // rowGroupPanelShow="always"
+                enableRangeSelection="true"
+                groupSelectsChildren="true"
+                suppressRowClickSelection="true"
+                // autoGroupColumnDef={autoGroupColumnDef}
+                pagination="true"
+                paginationAutoPageSize="true"
+                groupDefaultExpanded="1"
+                rowHeight="32"
+              />
             </Box>
-          </div>
-          <Box
-            className="ag-theme-alpine"
-            sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
+          </Paper>
+        </TabPanel>
+        <TabPanel value="0">
+          <Paper
+            sx={{
+              p: 3,
+              mx: 1,
+              borderRadius: "10px 10px 10px 10px",
+              mb: 3,
+            }}
           >
-            <AgGridReact
-              rowData={filteredData} // Row Data for Rows
-              columnDefs={columnDefsAll}
-              // defaultColDef={defaultColDef} // Default Column Properties
-              animateRows={true} // Optional - set to 'true' to have rows animate when sorted
-              // rowSelection="multiple" // Options - allows click selection of rows
-              // rowGroupPanelShow="always"
-              enableRangeSelection="true"
-              groupSelectsChildren="true"
-              suppressRowClickSelection="true"
-              // autoGroupColumnDef={autoGroupColumnDef}
-              pagination="true"
-              paginationAutoPageSize="true"
-              groupDefaultExpanded="1"
-              rowHeight="32"
-            />
-          </Box>
-        </Paper>
-      </TabPanel>
-      <TabPanel value="0">
-        <Paper
-          sx={{
-            p: 3,
-            mx: 1,
-            borderRadius: "10px 10px 10px 10px",
-            mb: 3,
-          }}
-        >
-          <div style={{ marginBottom: "10px" }}>
-            <Box display="flex">
-              <Typography variant="h3">Data Product Wbms</Typography>
-              <Box display="flex" ml="auto">
-                <Button
-                  variant="contained"
-                  sx={{
-                    fontSize: "11px",
-                    padding: "8px 8px",
-                    fontWeight: "bold",
-                    color: "white",
-                    marginLeft: "8px",
-                  }}
-                  onClick={() => {
-                    setIsOpen(true);
-                  }}
-                >
-                  <AddIcon sx={{ mr: "5px", fontSize: "16px" }} />
-                  Tambah Data
-                </Button>
+            <div style={{ marginBottom: "10px" }}>
+              <Box display="flex">
+                <Typography variant="h3">Data Product Wbms</Typography>
+                <Box display="flex" ml="auto">
+                  <Button
+                    variant="contained"
+                    sx={{
+                      fontSize: "11px",
+                      padding: "8px 8px",
+                      fontWeight: "bold",
+                      color: "white",
+                      marginLeft: "8px",
+                    }}
+                    onClick={() => {
+                      setIsOpen(true);
+                    }}
+                  >
+                    <AddIcon sx={{ mr: "5px", fontSize: "16px" }} />
+                    Tambah Data
+                  </Button>
+                  <Button variant="contained" sx={{ ml: 0.5 }} onClick={() => refetch()}>
+                    Reload
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-            <hr sx={{ width: "100%" }} />
-            <Box display="flex" pb={1}>
-              <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
-                <InputBase
-                  sx={{ ml: 2, flex: 2, fontSize: "13px" }}
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <hr sx={{ width: "100%" }} />
+              <Box display="flex" pb={1}>
+                <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
+                  <InputBase
+                    sx={{ ml: 2, flex: 2, fontSize: "13px" }}
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
 
-                <IconButton type="button" sx={{ p: 1 }}>
-                  <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
-                </IconButton>
+                  <IconButton type="button" sx={{ p: 1 }}>
+                    <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
+                  </IconButton>
+                </Box>
               </Box>
+            </div>
+            <Box
+              className="ag-theme-alpine"
+              sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
+            >
+              <AgGridReact
+                rowData={filteredData.filter((product) => product.refType === 0)} // Row Data for Rows
+                columnDefs={columnDefs} // Column Defs for Columns
+                // defaultColDef={defaultColDef} // Default Column Properties
+                animateRows={true} // Optional - set to 'true' to have rows animate when sorted
+                // rowSelection="multiple" // Options - allows click selection of rows
+                // rowGroupPanelShow="always"
+                enableRangeSelection="true"
+                groupSelectsChildren="true"
+                suppressRowClickSelection="true"
+                // autoGroupColumnDef={autoGroupColumnDef}
+                pagination="true"
+                paginationAutoPageSize="true"
+                groupDefaultExpanded="1"
+                rowHeight="32"
+              />
             </Box>
-          </div>
-          <Box
-            className="ag-theme-alpine"
-            sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
+          </Paper>
+        </TabPanel>
+        <TabPanel value="1">
+          <Paper
+            sx={{
+              p: 3,
+              mx: 1,
+              borderRadius: "10px 10px 10px 10px",
+              mb: 3,
+            }}
           >
-            <AgGridReact
-              rowData={filteredData.filter((product) => product.refType === 0)} // Row Data for Rows
-              columnDefs={columnDefs} // Column Defs for Columns
-              // defaultColDef={defaultColDef} // Default Column Properties
-              animateRows={true} // Optional - set to 'true' to have rows animate when sorted
-              // rowSelection="multiple" // Options - allows click selection of rows
-              // rowGroupPanelShow="always"
-              enableRangeSelection="true"
-              groupSelectsChildren="true"
-              suppressRowClickSelection="true"
-              // autoGroupColumnDef={autoGroupColumnDef}
-              pagination="true"
-              paginationAutoPageSize="true"
-              groupDefaultExpanded="1"
-              rowHeight="32"
-            />
-          </Box>
-        </Paper>
-      </TabPanel>
-      <TabPanel value="1">
-        <Paper
-          sx={{
-            p: 3,
-            mx: 1,
-            borderRadius: "10px 10px 10px 10px",
-            mb: 3,
-          }}
-        >
-          <div style={{ marginBottom: "10px" }}>
-            <Box display="flex">
-              <Typography variant="h3">Data Product E-Dispatch</Typography>
-              <Box display="flex" ml="auto">
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: "goldenrod",
-                    fontSize: "12px",
-                    padding: "7px 10px",
-                    color: "white",
-                  }}
-                  onClick={() => eDispatchSync()}
-                >
-                  <SyncIcon sx={{ mr: "5px", fontSize: "16px" }} />
-                  Sync
-                </Button>
+            <div style={{ marginBottom: "10px" }}>
+              <Box display="flex">
+                <Typography variant="h3">Data Product E-Dispatch</Typography>
+                <Box display="flex" ml="auto">
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: "goldenrod",
+                      fontSize: "12px",
+                      padding: "7px 10px",
+                      color: "white",
+                    }}
+                    onClick={() => eDispatchSync()}
+                  >
+                    <SyncIcon sx={{ mr: "5px", fontSize: "16px" }} />
+                    Sync
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-            <hr sx={{ width: "100%" }} />
-            <Box display="flex" pb={1}>
-              <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
-                <InputBase
-                  sx={{ ml: 2, flex: 2, fontSize: "13px" }}
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <hr sx={{ width: "100%" }} />
+              <Box display="flex" pb={1}>
+                <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
+                  <InputBase
+                    sx={{ ml: 2, flex: 2, fontSize: "13px" }}
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
 
-                <IconButton type="button" sx={{ p: 1 }}>
-                  <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
-                </IconButton>
+                  <IconButton type="button" sx={{ p: 1 }}>
+                    <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
+                  </IconButton>
+                </Box>
               </Box>
+            </div>
+            <Box
+              className="ag-theme-alpine"
+              sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
+            >
+              <AgGridReact
+                rowData={filteredData.filter((product) => product.refType === 1)} // Row Data for Rows
+                columnDefs={columnDefs} // Column Defs for Columns
+                // defaultColDef={defaultColDef} // Default Column Properties
+                animateRows={true} // Optional - set to 'true' to have rows animate when sorted
+                // rowSelection="multiple" // Options - allows click selection of rows
+                // rowGroupPanelShow="always"
+                enableRangeSelection="true"
+                groupSelectsChildren="true"
+                suppressRowClickSelection="true"
+                // autoGroupColumnDef={autoGroupColumnDef}
+                pagination="true"
+                paginationAutoPageSize="true"
+                groupDefaultExpanded="1"
+                rowHeight="32"
+              />
             </Box>
-          </div>
-          <Box
-            className="ag-theme-alpine"
-            sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
+          </Paper>
+        </TabPanel>
+        <TabPanel value="2">
+          <Paper
+            sx={{
+              p: 3,
+              mx: 1,
+              borderRadius: "10px 10px 10px 10px",
+              mb: 3,
+            }}
           >
-            <AgGridReact
-              rowData={filteredData.filter((product) => product.refType === 1)} // Row Data for Rows
-              columnDefs={columnDefs} // Column Defs for Columns
-              // defaultColDef={defaultColDef} // Default Column Properties
-              animateRows={true} // Optional - set to 'true' to have rows animate when sorted
-              // rowSelection="multiple" // Options - allows click selection of rows
-              // rowGroupPanelShow="always"
-              enableRangeSelection="true"
-              groupSelectsChildren="true"
-              suppressRowClickSelection="true"
-              // autoGroupColumnDef={autoGroupColumnDef}
-              pagination="true"
-              paginationAutoPageSize="true"
-              groupDefaultExpanded="1"
-              rowHeight="32"
-            />
-          </Box>
-        </Paper>
-      </TabPanel>
-      <TabPanel value="2">
-        <Paper
-          sx={{
-            p: 3,
-            mx: 1,
-            borderRadius: "10px 10px 10px 10px",
-            mb: 3,
-          }}
-        >
-          <div style={{ marginBottom: "10px" }}>
-            <Box display="flex">
-              <Typography variant="h3">Data Product E-LHP</Typography>
-              <Box display="flex" ml="auto">
-                <Button
-                  variant="contained"
-                  sx={{
-                    backgroundColor: green[800],
-                    fontSize: "12px",
-                    padding: "7px 10px",
-                    color: "white",
-                  }}
-                >
-                  <SyncIcon sx={{ mr: "5px", fontSize: "16px" }} />
-                  Sync
-                </Button>
+            <div style={{ marginBottom: "10px" }}>
+              <Box display="flex">
+                <Typography variant="h3">Data Product E-LHP</Typography>
+                <Box display="flex" ml="auto">
+                  <Button
+                    variant="contained"
+                    sx={{
+                      backgroundColor: green[800],
+                      fontSize: "12px",
+                      padding: "7px 10px",
+                      color: "white",
+                    }}
+                  >
+                    <SyncIcon sx={{ mr: "5px", fontSize: "16px" }} />
+                    Sync
+                  </Button>
+                </Box>
               </Box>
-            </Box>
-            <hr sx={{ width: "100%" }} />
-            <Box display="flex" pb={1}>
-              <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
-                <InputBase
-                  sx={{ ml: 2, flex: 2, fontSize: "13px" }}
-                  placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <hr sx={{ width: "100%" }} />
+              <Box display="flex" pb={1}>
+                <Box display="flex" borderRadius="5px" ml="auto" border="solid grey 1px">
+                  <InputBase
+                    sx={{ ml: 2, flex: 2, fontSize: "13px" }}
+                    placeholder="Search"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
 
-                <IconButton type="button" sx={{ p: 1 }}>
-                  <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
-                </IconButton>
+                  <IconButton type="button" sx={{ p: 1 }}>
+                    <SearchIcon sx={{ mr: "3px", fontSize: "19px" }} />
+                  </IconButton>
+                </Box>
               </Box>
+            </div>
+            <Box
+              className="ag-theme-alpine"
+              sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
+            >
+              <AgGridReact
+                rowData={filteredData.filter((product) => product.refType === 2)} // Row Data for Rows
+                columnDefs={columnDefs} // Column Defs for Columns
+                // defaultColDef={defaultColDef} // Default Column Properties
+                animateRows={true} // Optional - set to 'true' to have rows animate when sorted
+                // rowSelection="multiple" // Options - allows click selection of rows
+                // rowGroupPanelShow="always"
+                enableRangeSelection="true"
+                groupSelectsChildren="true"
+                suppressRowClickSelection="true"
+                // autoGroupColumnDef={autoGroupColumnDef}
+                pagination="true"
+                paginationAutoPageSize="true"
+                groupDefaultExpanded="1"
+                rowHeight="32"
+              />
             </Box>
-          </div>
-          <Box
-            className="ag-theme-alpine"
-            sx={{ "& .ag-header-cell-label": { justifyContent: "center" }, width: "auto", height: "75vh" }}
-          >
-            <AgGridReact
-              rowData={filteredData.filter((product) => product.refType === 2)} // Row Data for Rows
-              columnDefs={columnDefs} // Column Defs for Columns
-              // defaultColDef={defaultColDef} // Default Column Properties
-              animateRows={true} // Optional - set to 'true' to have rows animate when sorted
-              // rowSelection="multiple" // Options - allows click selection of rows
-              // rowGroupPanelShow="always"
-              enableRangeSelection="true"
-              groupSelectsChildren="true"
-              suppressRowClickSelection="true"
-              // autoGroupColumnDef={autoGroupColumnDef}
-              pagination="true"
-              paginationAutoPageSize="true"
-              groupDefaultExpanded="1"
-              rowHeight="32"
-            />
-          </Box>
-        </Paper>
-      </TabPanel>
-    </TabContext>
-     {/* Create */}
-     <CreateProducts
-        isOpen={isOpen}
-        onClose={setIsOpen}
-      />
+          </Paper>
+        </TabPanel>
+      </TabContext>
+      {/* Create */}
+      <CreateProducts isOpen={isOpen} onClose={setIsOpen} />
 
       {/* edit */}
-      <EditProducts
-        isEditOpen={isEditOpen}
-        onClose={() => setIsEditOpen(false)}
-          dtProducts={selectedProduct}
-      />
+      <EditProducts isEditOpen={isEditOpen} onClose={() => setIsEditOpen(false)} dtProducts={selectedProduct} />
 
       {/* View */}
-      <ViewProducts
-        isViewOpen={isViewOpen}
-        onClose={() => setIsViewOpen(false)}
-        dtProducts={selectedProduct}
-      />
-  </Box> 
-);
+      <ViewProducts isViewOpen={isViewOpen} onClose={() => setIsViewOpen(false)} dtProducts={selectedProduct} />
+    </Box>
+  );
 };
 
 export default MDProduct;

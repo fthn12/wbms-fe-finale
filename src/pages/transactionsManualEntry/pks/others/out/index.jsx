@@ -85,7 +85,7 @@ const PksManualEntryOthersOut = (props) => {
 
       const data = { wbTransaction: { ...tempTrans } };
 
-      const response = await transactionAPI.create(data);
+      const response = await transactionAPI.update(data);
 
       if (!response.status) throw new Error(response?.message);
 
@@ -94,7 +94,7 @@ const PksManualEntryOthersOut = (props) => {
       setValues({ ...response.data.transaction });
       setIsSubmitted(true);
 
-      toast.success(`Transaksi WB-IN telah tersimpan.`);
+      toast.success(`Transaksi WB-OUT telah tersimpan.`);
     } catch (error) {
       return toast.error(`${error.message}.`);
     }
@@ -241,18 +241,9 @@ const PksManualEntryOthersOut = (props) => {
           value={values?.tahun}
           sx={{ mt: 2 }}
         />
-        <TextField
-          name="sptbs"
-          label="SPTBS"
-          type="text"
-          variant="outlined"
-          size="small"
-          fullWidth
-          onChange={handleChange}
-          value={values?.sptbs}
-          sx={{ mt: 2 }}
-        />
+     
       </Grid>
+      
 
       <Grid item xs={6} sm={3}>
         <TextField
